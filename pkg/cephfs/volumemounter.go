@@ -219,6 +219,10 @@ type fuseMounter struct{}
 
 func mountFuse(ctx context.Context, mountPoint string, cr *util.Credentials, volOptions *volumeOptions) error {
 	args := []string{
+		"--description=ceph-csi",
+		"--scope",
+		"--",
+		"ceph-fuse",
 		mountPoint,
 		"-m", volOptions.Monitors,
 		"-c", util.CephConfigPath,
@@ -235,7 +239,8 @@ func mountFuse(ctx context.Context, mountPoint string, cr *util.Credentials, vol
 		args = append(args, "--client_mds_namespace="+volOptions.FsName)
 	}
 
-	_, stderr, err := execCommand(ctx, "ceph-fuse", args[:]...)
+	//
+	_, stderr, err := execCommand(ctx, "systemd-run", args[:]...)
 	if err != nil {
 		return err
 	}
